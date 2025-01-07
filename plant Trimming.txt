@@ -1,0 +1,75 @@
+Tools used in this pipeline
+Software Package Manager- Anaconda
+QC of reads - FastQC
+Trimming --Sickle
+Genome Assembly --SPAdes
+Polishing --Pilon
+QC of draft assembly & polished --QUAST
+Reference guided scaffolding --RagTag
+MLST---- mlst
+AMR --abricate
+Genome Annotation --Prokka
+ANI-Dendrogram --dREP
+Pangenome Analysis --Roary
+Genome Visualization in ring structure --BRIG
+
+
+
+
+
+
+..........................................................................
+
+
+
+cp /mnt/c/Users/mmolla/Downloads/GR105A_2.fq.gz ~/chloroplast/
+conda create -n bioinformatics nextflow fastqc multiqc fastq -c bioconda -c conda-forge
+conda install -c bioconda fastp
+nextflow run trim.nf --reads 'chloroplast/*{_1,_2}.fq.gz'
+
+......................................................
+
+Result ....
+(bioinformatics) habib@RESNR-5WS7D14:~/FASTP_REPORT$ ls
+GR105A.html  GR105A.json
+
+
+
+
+
+
+............................................
+
+
+params.reads = 'fq/*{_1,_2}*fq.gz'
+
+process TRIM {
+
+
+    publishDir "TRIMMED", pattern: '*trimmed*.fq.gz', mode: 'copy'
+    publishDir "FASTP_REPORT", pattern: '*fastp.html', mode: 'copy'
+    publishDir "FASTP_REPORT", pattern: '*fastp.json', mode: 'copy'
+
+
+    tag "FASTP:${sampleid}"
+
+
+    input:
+    tuple val(sampleid), path(reads)
+
+
+    output:
+    path "*trimmed*", emit: trimmed_reads
+
+    script:
+    """
+    fastp -i ${reads[0]} -I ${reads[1]} -o ${sampleid}.trimmed.R1.fq.gz \\
+    -O ${sampleid}.trimmed.R2.fq.gz --json ${sampleid}.json --html ${sampleid}.html \\
+    --thread 5 --detect_adapter_for_pe
+    """
+}
+
+
+workflow {
+    Channel.fromFilePairs(params.reads) | TRIM
+}

@@ -1,0 +1,124 @@
+FAST QC
+
+
+habib@RESNR-5WS7D14:~/chloroplast$ ls
+GR105A_1.fq.gz  GR105A_2.fq.gz  reference.fna  script1.nf  work
+habib@RESNR-5WS7D14:~/chloroplast$ mkdir fastq
+habib@RESNR-5WS7D14:~/chloroplast$ mv *.fq.gz fastq/
+habib@RESNR-5WS7D14:~/chloroplast$ ls
+fastq  reference.fna  script1.nf  work
+habib@RESNR-5WS7D14:~/chloroplast$ ls fastq/
+GR105A_1.fq.gz  GR105A_2.fq.gz
+habib@RESNR-5WS7D14:~/chloroplast$ ls
+fastq  reference.fna  script1.nf  work
+habib@RESNR-5WS7D14:~/chloroplast$ pwd
+/home/habib/chloroplast
+habib@RESNR-5WS7D14:~/chloroplast$ realpath fastq/
+/home/habib/chloroplast/fastq
+habib@RESNR-5WS7D14:~/chloroplast$ nano pipline.nf
+Use "fg" to return to nano.
+
+[3]+  Stopped                 nano pipline.nf
+habib@RESNR-5WS7D14:~/chloroplast$ ls /home/habib/chloroplast/fastq/*.fq.gz
+/home/habib/chloroplast/fastq/GR105A_1.fq.gz  /home/habib/chloroplast/fastq/GR105A_2.fq.gz
+habib@RESNR-5WS7D14:~/chloroplast$ nano pipline.nf
+Use "fg" to return to nano.
+
+[4]+  Stopped                 nano pipline.nf
+habib@RESNR-5WS7D14:~/chloroplast$ nextflow run pipeline.nf
+Nextflow 24.10.3 is available - Please consider updating your version to it
+
+ N E X T F L O W   ~  version 24.10.0
+
+Cannot find script file: pipeline.nf
+habib@RESNR-5WS7D14:~/chloroplast$ nano pipline.nf
+habib@RESNR-5WS7D14:~/chloroplast$ nano pipline.nf
+habib@RESNR-5WS7D14:~/chloroplast$ nextflow run pipline.nf
+Nextflow 24.10.3 is available - Please consider updating your version to it
+
+ N E X T F L O W   ~  version 24.10.0
+
+Launching `pipline.nf` [nice_brenner] DSL2 - revision: 14c95cb523
+
+executor >  local (2)
+[f7/4b3bc7] process > QC (1) [100%] 2 of 2 ✔
+[/home/habib/chloroplast/work/a8/0023040fe67b6b4848b85c5e8609a0/GR105A_1_fastqc.html, /home/habib/chloroplast/work/a8/0023040fe67b6b4848b85c5e8609a0/GR105A_1_fastqc.zip]
+[/home/habib/chloroplast/work/f7/4b3bc79e624d8352d462803b945986/GR105A_2_fastqc.html, /home/habib/chloroplast/work/f7/4b3bc79e624d8352d462803b945986/GR105A_2_fastqc.zip]
+Completed at: 14-Jan-2025 10:28:07
+Duration    : 15m 9s
+CPU hours   : 0.5
+Succeeded   : 2
+
+
+habib@RESNR-5WS7D14:~/chloroplast$ nano pipline.nf
+habib@RESNR-5WS7D14:~/chloroplast$  ls
+fastq  pipline.nf  reference.fna  script1.nf  work
+habib@RESNR-5WS7D14:~/chloroplast$ ls work
+84  a8  f7
+habib@RESNR-5WS7D14:~/chloroplast$ ls
+fastq  pipline.nf  reference.fna  script1.nf  work
+habib@RESNR-5WS7D14:~/chloroplast$ ls fastq/
+GR105A_1.fq.gz  GR105A_2.fq.gz
+habib@RESNR-5WS7D14:~/chloroplast$ cp pipline.nf pipline2.nf
+habib@RESNR-5WS7D14:~/chloroplast$ ls
+fastq  pipline.nf  pipline2.nf  reference.fna  script1.nf  work
+habib@RESNR-5WS7D14:~/chloroplast$ nano pipline2.nf
+habib@RESNR-5WS7D14:~/chloroplast$ rm -fr work
+habib@RESNR-5WS7D14:~/chloroplast$ nextflow run pipline2.nf
+Nextflow 24.10.3 is available - Please consider updating your version to it
+
+ N E X T F L O W   ~  version 24.10.0
+
+Launching `pipline2.nf` [desperate_nightingale] DSL2 - revision: 6d60a24328
+
+executor >  local (2)
+[3f/eb21d4] process > QC (1) [100%] 2 of 2 ✔
+[/home/habib/chloroplast/work/3f/eb21d47d68752f3973ec9e69825d4c/GR105A_2_fastqc.html, /home/habib/chloroplast/work/3f/eb21d47d68752f3973ec9e69825d4c/GR105A_2_fastqc.zip]
+
+Completed at: 14-Jan-2025 11:23:08
+Duration    : 15m 54s
+CPU hours   : 0.5
+Succeeded   : 2
+
+
+habib@RESNR-5WS7D14:~/chloroplast$
+
+habib@RESNR-5WS7D14:~/chloroplast$
+
+
+
+..........................................................
+
+params.fastq="/home/habib/chloroplast/fastq/*.fq.gz"
+
+process QC {
+
+input:
+  path fastq
+
+output:
+  path "*"
+
+script:
+"""
+
+fastqc $fastq
+"""
+
+}
+
+
+workflow {
+
+fastq_ch=Channel.fromPath(params.fastq)
+QC(fastq_ch)
+QC.out.view()
+
+}
+
+
+
+..............................................................................
+
+
+
